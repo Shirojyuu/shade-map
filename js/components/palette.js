@@ -7,9 +7,12 @@ export default {
         const palette = ref([
             new Vector3(0,0,0)
         ]);
+        const PALETTE_MAX = 256;
+        const shadeMap = ref([]);
 
         const addColor = () => {
             palette._value.push(new Vector3(0,0,0));
+            console.log(paletteLimitReached);
         }
         const updateColor = (index, value, component) => {
             let colorToUpdate = palette._value[index];
@@ -42,7 +45,8 @@ export default {
         }
 
         return {
-            palette, 
+            palette,
+            PALETTE_MAX,
             updateColor,
             addColor
         }
@@ -51,7 +55,10 @@ export default {
     
     template: /*html*/`
         <div>
+            <div class="control-section palette-area">
             <h2>Base Palette</h2>
+            <button :disabled="palette.length > PALETTE_MAX" @click="addColor">Add color</button>
+            
             <ul class="palette-list">
                 <li v-for="(color, index) in palette">
                     <div class="rgb-display">
@@ -62,8 +69,13 @@ export default {
                     <canvas :id="'palette-preview-' + index" width="372" height="20" style="border:1px solid #000000;"></canvas>
                 </li>
             </ul>
-            <br/>
-            <button @click="addColor">Add color</button>
+            </div>
+
+            <!--<div class="control-section load-area">
+                <h2>Load a Palette from text file</h2>
+                <textarea width=100 id="load-palette">
+                </textarea>
+            </div> -->
         </div>
         
     `
