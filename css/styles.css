@@ -1,0 +1,10 @@
+.palette-list {
+    list-style-type: none;
+}
+.rgb-display {
+    display: flex;
+}
+
+.rgb-display p {
+    margin-right: 1vw;
+}
