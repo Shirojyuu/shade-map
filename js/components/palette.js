@@ -1,32 +1,23 @@
 import {ref, createApp, reactive} from 'vue';
 import { Vector3 } from '/js/classes/vector3.js';
+
+//Components
 import loader from './loader.js';
+import shadeMap from './shade-map.js';
 
 export default {
     setup () {
-        let palette = reactive([
-            // new Vector3(0,0,0)
-        ]);
-        let shadeMap = reactive([]);
+        let palette = reactive([]);
 
         //Limits for each array
         const PALETTE_MAX = 256;
-        const SHADE_MAP_MAX = 256;
 
         const doFill = (index, fillColor) => {
-            let hexString = 
-            '#'+
-            Number(fillColor.r).toString(16).padStart(2, '0') + 
-            Number(fillColor.g).toString(16).padStart(2, '0') + 
-            Number(fillColor.b).toString(16).padStart(2, '0'); 
-            console.log(hexString);
-
-            console.log(palette);
             let canvas = document.getElementById(`palette-preview-${index}`);            
             let ctx = canvas.getContext('2d');
 
             ctx.clearRect(canvas.clientLeft, canvas.clientTop, canvas.clientWidth, canvas.clientHeight)
-            ctx.fillStyle = hexString;
+            ctx.fillStyle = fillColor.toHexString();
             ctx.fillRect(canvas.clientLeft, canvas.clientTop, canvas.clientWidth, canvas.clientHeight);
         }
 
@@ -59,6 +50,7 @@ export default {
         }
 
         const updateColor = (index, value, component) => {
+            value = parseInt(value)
             if(value > 255) value = 255;
             if(value < 0) value = 0;
 
@@ -90,19 +82,19 @@ export default {
         return {
             palette,
             PALETTE_MAX,
-            SHADE_MAP_MAX,
             updateColor,
             addColor,
             removeColor,
             setColor,
             loadPalette,
-            loader
+            loader,
+            shadeMap
         }
     },
     
     
     template: /*html*/`
-        <div>
+        <div class="control-layout">
             <div class="control-section palette-area">
             <h2>Base Palette</h2>
             <button :disabled="palette.length > PALETTE_MAX" @click="addColor(0,0,0)">Add color</button>
@@ -120,6 +112,8 @@ export default {
                 </li>
             </ul>
             </div>
+
+            <component :is="shadeMap" :basePalette="palette"/>
         </div>
         
     `
