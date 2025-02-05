@@ -8,7 +8,7 @@ import shadeMap from './shade-map.js';
 export default {
     setup () {
         let palette = reactive([]);
-
+        let selectedColorIndex = ref(0);
         //Limits for each array
         const PALETTE_MAX = 256;
 
@@ -79,14 +79,20 @@ export default {
             
         }
 
+        const setColorIndex = (index) => {
+            selectedColorIndex = index;
+        }
+
         return {
             palette,
             PALETTE_MAX,
+            selectedColorIndex,
             updateColor,
             addColor,
             removeColor,
             setColor,
             loadPalette,
+            setColorIndex,
             loader,
             shadeMap
         }
@@ -103,6 +109,7 @@ export default {
             <ul class="palette-list">
                 <li v-for="(color, index) in palette">
                     <button @click="removeColor(index)">X</button>
+                    <button @click="setColorIndex(index)">Edit Light Values...</button>
                     <div class="rgb-display">
                         <p>Red:  <input type="number" min="0" max="255" :value="color.r" @change="(e) => updateColor(index, e.target.value, 'r')"></input></p>
                         <p>Green:<input type="number" min="0" max="255" :value="color.g" @change="(e) => updateColor(index, e.target.value, 'g')"></input></p>
@@ -113,7 +120,7 @@ export default {
             </ul>
             </div>
 
-            <component :is="shadeMap" :basePalette="palette"/>
+            <component :is="shadeMap" :basePalette="palette" :selectedColorIndex="selectedColorIndex"/>
         </div>
         
     `

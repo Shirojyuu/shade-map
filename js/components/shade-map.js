@@ -5,11 +5,18 @@ import { Dither } from '/js/classes/dither.js';
 import preview from './preview.js';
 
 export default {
-    props: ['basePalette'],
+    props: ['basePalette', 'selectedColorIndex'],
     setup (props) {
         console.log(props);
         const SHADE_MAP_MAX = 256;
+        let {basePalette, selectedColorIndex} = props;
         let shadeMap = reactive([]);
+        let currentEntry = computed (() => { 
+            if(shadeMap.length === 0) { return []; }
+            return shadeMap[selectedColorIndex];
+        });
+
+        let maxLightValues = ref(0);
         let finalMap = computed(() => {
             if(shadeMap.length === 0) { return []; }
 
@@ -21,11 +28,22 @@ export default {
             console.log(fMap);
             return fMap;
         })
-        let {basePalette} = props;
 
         const disableAdd = computed(() => {
             return shadeMap.length > SHADE_MAP_MAX || basePalette.length === 0
         });
+
+        const changeLightValues = (count) => {
+            let shadeMap = new Array();
+            let smRow = new Array();
+            smRow.length = count.target.value;
+            smRow.fill(new Vector3(0,0,0));
+            for(let i = 0; i < basePalette.length; i++) {
+                shadeMap.push(smRow);
+            }
+            console.log(shadeMap)
+            console.log(currentEntry.value)
+        }
 
         //CRUD functions for ShadeMap
         const addMapEntry = () => {
@@ -61,10 +79,13 @@ export default {
         return {
             SHADE_MAP_MAX,
             shadeMap,
+            maxLightValues,
+            currentEntry,
             basePalette,
             disableAdd,
             finalMap,
             preview,
+            changeLightValues,
             addMapEntry,
             removeMapEntry,
             updateMapEntry,
@@ -76,14 +97,15 @@ export default {
             <div class="control-section-lg palette-area">
                 <div>
                 <h2>Shade Map</h2>
-                    <button :disabled="disableAdd" @click="addMapEntry()">Add entry</button>
+                    <label for="lv-count"># of Light Values: </label>
+                    <input id="lv-count" type="number" min="0" max="255" :value="maxLightValues" @change="(e) => changeLightValues(e)"/>
+                    
 
                     <ul class="palette-list">
-                        <li v-for="(entry, index) in shadeMap">
-                            <button @click="removeMapEntry(index)">X</button>
+                        <li v-for="(lightValue, index) in currentEntry">
                             <div class="rgb-display">
-                                <p>Red:  <input type="number" min="0" :max="basePalette.length - 1" :value="entry.r" @change="(e) => updateMapEntry(index, e.target.value, 'r')"></input></p>
-                                <p>Green:<input type="number" min="0" :max="basePalette.length - 1" :value="entry.g" @change="(e) => updateMapEntry(index, e.target.value, 'g')"></input></p>
+                                <p>Red:  <input type="number" min="0" :max="basePalette.length - 1" :value="lightValue.r" @change="(e) => updateMapEntry(index, e.target.value, 'r')"></input></p>
+                                <p>Green:<input type="number" min="0" :max="basePalette.length - 1" :value="lightValue.g" @change="(e) => updateMapEntry(index, e.target.value, 'g')"></input></p>
                             </div>
                         </li>
                     </ul>
