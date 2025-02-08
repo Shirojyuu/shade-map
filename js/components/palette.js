@@ -1,4 +1,4 @@
-import {ref, createApp, reactive} from 'vue';
+import {ref, reactive} from 'vue';
 import { Vector3 } from '/js/classes/vector3.js';
 
 //Components
@@ -80,7 +80,7 @@ export default {
         }
 
         const setColorIndex = (index) => {
-            selectedColorIndex = index;
+            selectedColorIndex.value = index;
         }
 
         return {
