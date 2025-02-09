@@ -4,7 +4,7 @@ export default {
     props: ['finalMap'],
     setup (props) {
 
-        let {finalMap} = props
+        let {finalMap} = props;
         let canvas = computed(() => {
             return document.getElementById('preview-canvas');
         })
@@ -12,14 +12,23 @@ export default {
             return canvas.value.getContext('2d');
         })
 
-        watch(() => props.finalMap, (newFinalMap) => {
-            newFinalMap.forEach((d, index) => {
-                drawDither(d, index, 4);
-            });
-        });
+        const drawPreview = (scale) => {
+            ctx.value.clearRect(canvas.value.clientLeft, canvas.value.clientTop, canvas.value.clientWidth * scale, canvas.value.clientHeight * scale)
 
-        const drawDither = (dither, index, scale) => {
-            // ctx.value.clearRect(canvas.value.clientLeft, canvas.value.clientTop, canvas.value.clientWidth, canvas.value.clientHeight)
+            let pMap = finalMap.flat();
+            console.log(pMap);
+            for(let i = 0; i < pMap.length; i++) {
+                console.log(i);
+
+                for(let j = 0; j < pMap[i].length; j++) {
+                    drawDither(pMap[i][j], j, i, scale);
+                }
+            }
+        }
+
+        const drawDither = (dither, x, y, scale) => {
+            // canvas.value.width = lvCount.value * scale;
+            // canvas.value.height = basePalette.length * scale;
             for(let h = 0; h < 4; h++) {
                 for(let i = 0; i < 4; i++) {
                     if(i % 2 === 0) {
@@ -31,8 +40,8 @@ export default {
                         else ctx.value.fillStyle = dither.c1.toHexString();
                     }
                     ctx.value.fillRect(
-                        canvas.value.clientLeft + i * scale + (index * scale * 4), 
-                        (canvas.value.clientTop + h * scale), 
+                        (canvas.value.clientLeft + i * scale) + (x * scale * 4), 
+                        (canvas.value.clientTop + h* scale) + y * scale * 4, 
                         1 * scale, 
                         1 * scale
                     );
@@ -41,7 +50,8 @@ export default {
         }
 
         return {
-            finalMap
+            drawDither,
+            drawPreview,
         }
 
     },
@@ -50,7 +60,7 @@ export default {
         <div>
             <div class="control-section fixed">
                 <h2>Preview</h2>
-                <canvas id="preview-canvas" width="160" height="160"/>
+                <canvas id="preview-canvas"/>
             </div>
         </div>
     ` 

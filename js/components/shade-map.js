@@ -12,38 +12,49 @@ export default {
         let lvCount = ref(0);
         let {basePalette, selectedColorIndex} = props;
         let currentSCI = ref(selectedColorIndex);
+        let previewRef = ref();
         watch(() => props.selectedColorIndex, (newSelectedColorIndex) => {
             console.log(newSelectedColorIndex); 
             currentSCI.value = newSelectedColorIndex;
             console.log(shadeMap[currentSCI.value]);
         })
         let shadeMap = reactive([]);
-
         let finalMap = reactive([]);
+
+        let canvas = computed(() => {
+            return document.getElementById('shade-map-output');
+        })
+        let ctx = computed(() => {
+            return canvas.value.getContext('2d');
+        })
 
         const generateFinalMap = () => {
             if(shadeMap.length === 0) { finalMap.length = 0; }
 
             let fMap = [];
-            //TODO: Figure out how to derive dither on a per-color
-            shadeMap.forEach((entry) => {
-                console.log("Entry: ");
-                console.log(entry);
-                entry.forEach(d => {
-                    let insertedDither = new Dither(basePalette[d.r], basePalette[d.g])
-                    fMap.push(insertedDither);
-                    console.log(insertedDither);
+
+            basePalette.forEach((bp, idx) => {
+                let row = new Array();
+                console.log(shadeMap[idx]);
+                shadeMap[idx].forEach(c => {
+                    let insertedDither = new Dither(basePalette[c.r], basePalette[c.g]);
+                    row.push(insertedDither)
                 })
+                fMap.push(row)
             })
 
-            console.log(fMap);
+            finalMap.length = 0;
             finalMap.splice(0, 0, fMap);
+            drawMap(4);
+            previewRef.value.drawPreview(4);
         }
 
         const changeLightValues = (count) => {
             lvCount.value = count.target.value;
             shadeMap.length = 0;
             
+            //Create a new array of Vector3s with the length of the max light values
+            //Push that new array for each color in the basePalette
             for(let i = 0; i < basePalette.length; i++) {
                 let smRow = new Array();
                 for(let j = 0; j < lvCount.value; j++) {
@@ -51,9 +62,6 @@ export default {
                 }
                 shadeMap.splice(0, 0, smRow);
             }
-            console.log(shadeMap)
-            console.log(`Editing values for palette entry ${selectedColorIndex}`);
-
         }
         
         //CRUD functions for ShadeMap
@@ -85,8 +93,28 @@ export default {
             console.log(shadeMap);
         }
 
-        const drawMapEntry = (entry) => {
+        const drawMap = (scale) => {
+            canvas.value.width = lvCount.value * scale;
+            canvas.value.height = basePalette.length * scale;
+            ctx.value.clearRect(canvas.value.clientLeft, canvas.value.clientTop, canvas.value.clientWidth, canvas.value.clientHeight);
+            for(let j = 0; j < lvCount.value; j++) {
+                    for(let i = 0; i < basePalette.length; i++) {
+                    ctx.value.fillStyle = shadeMap[i][j].toHexString();
+                    ctx.value.fillRect(
+                        canvas.value.clientLeft + j * scale, 
+                        (canvas.value.clientTop + i * scale), 
+                        1 * scale, 
+                        1 * scale
+                    );
+                }
+            }
+        }
 
+        const downloadCanvas = () => {
+            let link = document.createElement('a');
+            link.download = 'shade-map.png';
+            link.href = canvas.value.toDataURL('image/png');
+            link.click();
         }
 
         return {
@@ -98,11 +126,13 @@ export default {
             basePalette,
             finalMap,
             preview,
+            previewRef,
             changeLightValues,
             addMapEntry,
             removeMapEntry,
             updateMapEntry,
             generateFinalMap,
+            downloadCanvas,
         }
     },
 
@@ -126,12 +156,15 @@ export default {
                         </li>
                     </ul>
                 </div>
-                <div>
+                <div style="margin-left: 1vw; display: flex; flex-direction:column;">
                     <h2>Output</h2>
-                    <canvas id="shade-map-output" :width="lvCount" :height="basePalette.length"/>
+                    <div>
+                        <canvas id="shade-map-output"/>
+                    </div>
+                    <button id="download-btn" @click="downloadCanvas">Download Output</button>
                 </div>
             </div>
-            <component :is="preview" :finalMap="finalMap"/>
+            <component :is="preview" :finalMap="finalMap" ref="previewRef"/>
         </div>
     `
 }

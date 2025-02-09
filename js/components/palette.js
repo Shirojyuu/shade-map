@@ -108,6 +108,7 @@ export default {
             
             <ul class="palette-list">
                 <li v-for="(color, index) in palette">
+                    <span style="margin-right: 10px;"> Color# {{index}}</span>
                     <button @click="removeColor(index)">X</button>
                     <button @click="setColorIndex(index)">Edit Light Values...</button>
                     <div class="rgb-display">
