@@ -1,0 +1,51 @@
+.control-layout {
+    display: flex;
+    flex-direction: row;
+}
+.control-section {
+    border: 1px solid rgb(110, 110, 110);
+    padding: 0.5vw;
+    margin: 2vw;
+    min-width: 25vw;
+    min-height: 10vh;
+    max-height: 70vh;
+}
+
+.control-section-lg {
+    border: 1px solid rgb(110, 110, 110);
+    padding: 0.5vw;
+    margin: 2vw;
+    min-width: 50vw;
+    min-height: 40vh;
+    max-height: 50vh;
+    overflow-y: scroll;
+    display: flex;
+}
+
+.control-section-lg div {
+    min-width: 20vw;
+}
+
+.control-section .fixed {
+    border: 1px solid rgb(110, 110, 110);
+    padding: 0.5vw;
+    margin: 2vw;
+    min-width: 25vw;
+    min-height: 50vh;
+}
+
+.flex-controls {
+    display: flex;
+}
+.palette-list {
+    list-style-type: none;
+    max-height: 70%;
+    overflow-y: scroll;
+}
+.rgb-display {
+    display: flex;
+}
+
+.rgb-display p {
+    margin-right: 1vw;
+}
